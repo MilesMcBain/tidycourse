@@ -1,0 +1,78 @@
+---
+title: "Winning at work with R and the Tidyverse"
+author: "Miles McBain"
+date: "4 February 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+library(tutor)
+library(tidyverse)
+```
+
+##Introduction
+* What is the tidyverse?
+* Tidy Data
+
+##Prerequisites
+
+##Tidystyle
+[This is a good start](https://rpubs.com/yeedle/tidyguide)
+
+#Pipes %>%
+
+##Pipes %>%
+* Originally from the `magrittr` package but has been imported to the `tidyverse`.
+* `%>%` is an **infix operator**. This means it takes two operands, left and right.
+* Pipe feeds the **output** of the last expression/function (left) forward to the **first input** of the next funciton (right).
+```{r, eval = FALSE}
+1 %>% I() == I(1)
+```
+
+* can also control the input position of the next function with `.`:
+```{r, eval = FALSE}
+10 %>% rep(x = 1:10, .)
+```
+
+## Other infix operators:
+
+```{r, eval=FALSE}
+c(1,2) %*% t(c(3,4)) #vector/matrix multiplaction
+
+"apple" %in% c("orange", "pear", "banana") #contains?
+
+`%my_infix%` <- function(larg, rarg){ c(larg, rarg)} #anything!
+1 %my_infix% c(2,3)
+```
+
+## Example
+```{r, eval=FALSE}
+mtcars %>% 
+    mutate(pwr_2_weight = hp/wt) %>%
+    arrange(pwr_2_weight) %>%
+    head()
+```
+
+## Exercises
+
+(1.) Rearrange this code so that it does not use `%>%`:
+
+```{r unpipe, eval=FALSE}
+mtcars %>% 
+    mutate(pwr_2_weight = hp/wt) %>%
+    arrange(pwr_2_weight) %>%
+    head()
+```
+
+(2.) What are the advantages of the piping syntax?
+
+## Why %>% works
+* dataframes (tibbles) as the universal input and output format
+
+##Pitfalls
+tidverse always retruns a copy
+pass by promise
+collum-wise vs row-wise processingu
+
+
+

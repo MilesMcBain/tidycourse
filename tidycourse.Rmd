@@ -1,0 +1,69 @@
+---
+title: "Winning at work with R and the Tidyverse"
+author: "Miles McBain"
+date: "4 February 2017"
+runtime: shiny_prerendered
+output:
+  bookdown::gitbook:
+      dev: svglite
+      css: css/style.css
+      split_by: section
+      config:
+        toc:
+          collapse: none
+        download: [pdf, epub, mobi]
+        edit: https://github.com/milesmcbain/tidycourse/edit/master/inst/examples/%s
+        sharing:
+          github: yes
+          facebook: no
+---
+
+```{r setup, include=FALSE}
+library(tutor)
+library(tidyverse)
+```
+
+#Introduction
+* What is the tidyverse?
+* Tidy Data
+
+##Prerequisites
+
+#Tidystyle
+[This is a good start](https://rpubs.com/yeedle/tidyguide)
+
+##Pipes %>%
+
+### Example
+```{r, eval=FALSE}
+mtcars %>% 
+    mutate(pwr_2_weight = hp/wt) %>%
+    arrange(pwr_2_weight) %>%
+    head()
+```
+
+### Notes
+* We call the `%>%` operator the 'pipe'.  
+* Originally from the `magrittr` package but has been imported to the `tidyvsere`.
+* `%>%` is an **infix operator**. This means it takes two arguments, one on the left and right.
+* Pipe feeds the output of the last expression/function forward to the first input of the next funciton.
+    - `.` can also control the input position if the next function
+
+other infix operators:
+```{r, eval=FALSE}
+c(1,2) %*% t(c(3,4)) #vector/matrix multiplaction
+
+"apple" %in% c("orange", "pear", "banana") #containment
+```
+
+### Example
+
+```{r addition, exercise=TRUE}
+1 + 1
+```
+
+
+
+
+<!--chapter:end:index.Rmd-->
+
