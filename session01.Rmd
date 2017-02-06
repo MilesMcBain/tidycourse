@@ -191,7 +191,7 @@ knitr::kable(tribble(
     - `spread()` rows out over columns (unstack, cast, pivot)
     - `seprate()` one column into many
     - `unite()` many columns into one
-    - `fill()` missing values
+    - `fill()` and `drop_na()` values
     - And more!
 
 
