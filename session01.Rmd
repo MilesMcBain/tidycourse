@@ -9,6 +9,9 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(knitr)
+library(here)
+COURSE_HOME <- here()
 ```
 
 #Session One: Introduction, Tidy Style, Pipes
@@ -31,7 +34,8 @@ xml2
 * Which of these are we familiar with?
 
 ## Structure of This Course
-*TODO
+* TODO 
+* PRAC_HOME
 
 #Tidy Style
 
@@ -56,12 +60,12 @@ who %>%
 ##Pipes %>%
 * Originally from the `magrittr` package but has been imported to the `tidyverse`.
 * `%>%` is an **infix operator**. This means it takes two operands, left and right.
-* Pipe feeds the **output** of the last expression/function (left) forward to the **first input** of the next funciton (right).
+* 'Pipes' the **output** of the last expression/function (left) forward to the **first input** of the next funciton (right).
 ```{r, eval = FALSE}
 1 %>% I() == I(1)
 ```
 
-* can also control the input position of the next function with `.`:
+* Can control the input position of the next function with `.`:
 ```{r, eval = FALSE}
 10 %>% rep(x = 1:10, .)
 ```
@@ -103,13 +107,13 @@ mtcars %>%
 ```{r, eval = FALSE}
 iris #dataframe
 iris_setosa <- filter(iris, Species == "setosa") #in: dataframe, out: tibble
-iris_setosa_pet <- arrange(iris_setosa, Petal.Length) #in: tibble, out:tibble
+iris_setosa_pet <- arrange(iris_setosa, Petal.Length) #in: tibble, out: tibble
 head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
 ```
 * Creating functional chains with `%>%` is easy when you don't have to worry about the input and output types.
 
 ## Pitfalls of %>%
-* Since %>% is an operator, it has a position in the order of precedence. 
+* Since `%>%` is an operator, it has a position in the order of precedence. 
 * This leads to some surprising results:
 ```{r}
 a <- c(TRUE,FALSE,NA)
@@ -121,6 +125,7 @@ a <- c(TRUE,FALSE,NA)
 
 ## Benefits of %>% and Tidy Style
 * Functions flow in natural order that tells story about data.
+* Code effects are easy to reason about by inserting `View()`/`head()` into pipe chain.
 * Common style makes it easy to understand collaborator (or your own) code.
 
 #Tidy Data
@@ -128,12 +133,84 @@ a <- c(TRUE,FALSE,NA)
 ## Tidy Data
 * The tools in the tidyverse are geared toward:
     - Turning data into tidy data
-    - Plotting/Modelling/Analysing tidy data
+    - Plotting/Modelling/Analysing Tidy Data
     
-<center>![](./bad_time.jpg)</center>
+<center>![](./figs/bad_time.jpg)</center>
 
 ## What is Tidy Data?
+* [Hadley Wickham's 2014 JSS Paper](https://www.jstatsoft.org/article/view/v059i10)
+    - 1 observation = 1 row
+    - 1 variable = 1 column
+    
+## Is This Tidy Data?
+```{r, echo=FALSE}
+knitr::kable(head(mtcars))
+```
 
+## Is This Tidy Data?
+```{r, echo=FALSE}
+knitr::kable(tribble(
+    ~FY, ~Week, ~Mon, ~Tue, ~Wed, ~Thur, ~Fri, ~Sat, ~Sun,
+    1617,    1,   40,   45,   58,    74,   92,   80,  116,
+    1617,    2,   38,   42,   63,    76,   88,   90,  120,
+    1617,    3,   32,   43,   59,    68,   102,  78,   91
+))
+```
+
+## Tidied! (almost)
+```{r, echo=FALSE}
+knitr::kable(tribble(
+    ~FY, ~Week, ~Mon, ~Tue, ~Wed, ~Thur, ~Fri, ~Sat, ~Sun,
+    1617,    1,   40,   45,   58,    74,   92,   80,  116,
+    1617,    2,   38,   42,   63,    76,   88,   90,  120,
+    1617,    3,   32,   43,   59,    68,   102,  78,   91
+) %>% gather(key = "Day", value = "Sales", Mon:Sun)
+)
+    
+```
+
+## Is This Tidy Data?
+```{r, echo = FALSE}
+ knitr::kable(as.data.frame(Titanic) %>% 
+              arrange(Class) %>%
+              head())
+
+```
+
+## Tidied!
+```{r, echo=FALSE}
+ knitr::kable(as.data.frame(Titanic) %>% 
+              arrange(Class) %>%
+              spread(key = Survived, value = Freq) %>%      
+              head())
+```
+
+## Tidying Data
+* The package for tidying data is `tidyr`. With it you can:
+    - `gather()` columns up into rows (stack, melt, unpivot)
+    - `spread()` rows out over columns (unstack, cast, pivot)
+    - `seprate()` one column into many
+    - `unite()` many columns into one
+    - `fill()` missing values
+    - And more!
+
+## Exercise
+We're going to create this plot:
+![](./figs/Tuberculosis.png)
+
+## Exercise
+From the data in `PRAC_HOME/data/tb_who.csv`.
+
+starter code:
+```{r, eval=FALSE}
+tb_cases <- readr::read_csv(file.path(COURSE_HOME,"data/tb_who.csv"))
+View(tb_cases)
+```
+[Cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
+* What are the issues with this data?
+* What `tidyr` methods can be used to fix it?
+* How does the tidied data facilitate plotting?
 
 
 
