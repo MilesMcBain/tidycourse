@@ -2,22 +2,54 @@
 title: "Winning at work with R and the Tidyverse"
 author: "Miles McBain"
 date: "4 February 2017"
-output: ioslides_presentation
+output: 
+    ioslides_presentation:
+        css: ./style.css
 ---
 
 ```{r setup, include=FALSE}
-library(tutor)
 library(tidyverse)
 ```
 
-##Introduction
-* What is the tidyverse?
-* Tidy Data
+#Session One: Introduction, Tidy Style, Pipes
 
-##Prerequisites
+##What is the tidyverse?
+* The [tidyverse](http://tidyverse.org/) is the collective name given to suite of R packages designed mostly by Hadley Wickham.
+* Before it was formalised in 2016 it was loosely referred to as the `hadleyverse`.
+* Packages share a common API and design philosohpy intended to create a **"Pit of Success"**.
 
-##Tidystyle
-[This is a good start](https://rpubs.com/yeedle/tidyguide)
+##Members of the tidyverse
+broom, **dplyr**, forcats,
+**ggplot2**, haven, httr,
+hms, jsonlite, lubridate,
+magrittr, modelr, purrr,
+**readr**, readxl, stringr,
+tibble, rvest, **tidyr**,
+xml2
+
+* **bold** indicates particularly famous members. 
+* Which of these are we familiar with?
+
+## Structure of This Course
+*TODO
+
+#Tidy Style
+
+##Tidy Style
+* Tidyverse code has a certain look:
+```{r, eval = FALSE}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+-[Grolemund, Wickham, 2016 R for Data Science](http://r4ds.had.co.nz/tidy-data.html#case-study)
+
+##Style Guide
+* The documentation of this style is still evolving.
+* [This is a good start](https://rpubs.com/yeedle/tidyguide)
 
 #Pipes %>%
 
@@ -66,13 +98,43 @@ mtcars %>%
 
 (2.) What are the advantages of the piping syntax?
 
-## Why %>% works
-* dataframes (tibbles) as the universal input and output format
+## Why %>% helps in the tidyverse
+* dataframes (tibbles) are the universal input and output format:
+```{r, eval = FALSE}
+iris #dataframe
+iris_setosa <- filter(iris, Species == "setosa") #in: dataframe, out: tibble
+iris_setosa_pet <- arrange(iris_setosa, Petal.Length) #in: tibble, out:tibble
+head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
+```
+* Creating functional chains with `%>%` is easy when you don't have to worry about the input and output types.
 
-##Pitfalls
-tidverse always retruns a copy
-pass by promise
-collum-wise vs row-wise processingu
+## Pitfalls of %>%
+* Since %>% is an operator, it has a position in the order of precedence. 
+* This leads to some surprising results:
+```{r}
+a <- c(TRUE,FALSE,NA)
+!is.na(a) %>% which()
+```
+* [R Operator Precedence](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Syntax.html). Beware!
+* Using `%>%` incurrs small processing overhead due to Non-Standard Evaluation. Reconsider use in fucntions for row-wise operations. 
+* When using the debugger it can make code harder to trace.
+
+## Benefits of %>% and Tidy Style
+* Functions flow in natural order that tells story about data.
+* Common style makes it easy to understand collaborator (or your own) code.
+
+#Tidy Data
+
+## Tidy Data
+* The tools in the tidyverse are geared toward:
+    - Turning data into tidy data
+    - Plotting/Modelling/Analysing tidy data
+    
+<center>![](./bad_time.jpg)</center>
+
+## What is Tidy Data?
+
+
 
 
 
