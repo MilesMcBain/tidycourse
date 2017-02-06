@@ -194,12 +194,9 @@ knitr::kable(tribble(
     - `fill()` missing values
     - And more!
 
-## Exercise
-We're going to create this plot:
-![](./figs/Tuberculosis.png)
 
 ## Exercise
-From the data in `PRAC_HOME/data/tb_who.csv`.
+We're going to tidy the data in `PRAC_HOME/data/tb_who.csv`.
 
 starter code:
 ```{r, eval=FALSE}
@@ -210,7 +207,6 @@ View(tb_cases)
 
 * What are the issues with this data?
 * What `tidyr` methods can be used to fix it?
-* How does the tidied data facilitate plotting?
 
 
 
