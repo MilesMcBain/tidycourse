@@ -1,0 +1,58 @@
+---
+title: "Winning at work with R and the Tidyverse"
+author: "Miles McBain"
+date: "4 February 2017"
+output: 
+    ioslides_presentation:
+        css: ./style.css
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(here)
+COURSE_HOME <- here()
+```
+
+#Data Munging
+
+## Dplyr
+* `dplyr` is the data wrangling workhorse of the tidyverse.
+* Prodvides functions, **verbs**, that can maipulate tibbles into the shape you need for analysis.
+* Has many backends allowing dplyr code to work on data stored in SQL databases and big data clusters.
+    - Works via translation to SQL. Keep an eye out for the SQL flavour in `dplyr`
+
+##Basic Vocab
+* `select()` columns from a tibble 
+* `filter()` to rows matching a certain condition
+* `mutate()` a tibble by changing or adding rows
+* `arrange()` rows in order
+* `group_by()` a variable
+* `summarise()` data over a group using a function
+
+##Select
+```{r}
+iris %>% 
+    select(Sepal.Width, Species) %>%
+    select(-Species) %>%
+    head()
+```
+* What is the output of this code?
+* Note the use of *bare* *unquoted* variable names.
+    - No `iris$Species` or `iris[,"Species"]`
+    - How does this even work?
+
+##Filter
+
+##Mutate
+
+
+##Group by
+`ungroup()`
+
+#Create Copy
+
+#Conditional Mutate?
+`if_else()`
+
+#SQL Backend
