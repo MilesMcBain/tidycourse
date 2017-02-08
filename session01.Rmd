@@ -45,8 +45,12 @@ xml2
 * Which of these are we familiar with?
 
 ## Structure of This Course
-Session 1: Tidyverse style, Pipes (`%>%`), Tidy Data, Tidyr
-Session 2: Dplyr
+3x Sessions intended to run about 50min each.
+
+* Session 1: Tidyverse style, Pipes (`%>%`), Tidy Data, Tidyr
+* Session 2: Dplyr, ggplot2
+* Session 3: Advanced Dplyr, Advanced Tidyr, purrr, modelr
+
 #Tidy Style
 
 ##Tidy Style

@@ -17,10 +17,11 @@ COURSE_HOME <- here()
 #Data Munging
 
 ## Datasets
-Let's familise ourselves with the data our examples will work on:
+This section is about shaping data. Let's familise ourselves with the data our examples will work on:
 ```{r}
 mtcars
 airquality
+mpg
 ```
 
 ## Dplyr
@@ -154,6 +155,7 @@ index_data <- tribble(
 
 (4.) Create a dataset that contains new metrics that are the delta of (2016 - 2014, 2014 - 2011).
 
+
 ##Planning for Plotting
 * Most likely one of the things you are keen to do with the `tidyverse` is plot.
 * `ggplot2` loves tidy data. Every **aesthetic** about a plot you want to be controlled by data should be a **column**.
@@ -178,12 +180,31 @@ tb_cases_tidy <-
     separate(col = group, into = c("gender", "age_group"), sep = 1)
 ```
 
-## An Aside on ggplot2
-* This course is not a `ggplot2` course.
+# ggplot2
 
-##Delving Further into dplyr
-* Each `mutate` and `summarise` conditional versions to make large scale wrangling possible.
-* E.g. `mutate()` is part of a family that contains `mutate_at()`, `mutate_all()`, `mutate_if()`
+## A Crash Course on ggplot2
+* It might seem weird to jump to ggplot2. Now is the perfect time to discuss it.
+* Most struggles with ggplot2 are really struggles with data!
+* ggplot2 is a system that provides **mappings** from your data to **aesthetics**.
 
-##Joins
+
+## The Worst Plot Ever
+```{r, echo = false}
+    mpg %>%
+    ggplot() +
+    geom_point(mapping = aes(x = year, y = cty))
+```
+
+## Things to do
+* Got to [ggplot2 documentation](http://docs.ggplot2.org/current/).
+* Choose a better geom_
+* Facet by manufacturer
+* Facet by mileage and manufacturer
+* Choose a theme!
+
+##Take away from crash course
+* Plots are built iteratively. It's a creative process.
+* The data drives the visualisation.
+    - Make sure it is tidy!
+* Learn the concepts of ggplot2. The details are there in the documentation when you need them.
 
