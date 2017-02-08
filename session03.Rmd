@@ -9,95 +9,73 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(broom)
 library(knitr)
 library(here)
 COURSE_HOME <- here()
 ```
 
-#Deep Dplyr
+#Tidy Models
 
-##Delving Further into dplyr
-* `mutate` and `summarise` have conditional versions to make large scale wrangling a breeze.
-* E.g. `mutate()` is part of a family that contains `mutate_at()`, `mutate_all()`, `mutate_if()`
-    - Can do some pretty cool tricks!
+## Hello old friend | A linear model (logistic regression) {.codefont}
+```{r, echo=FALSE, message=FALSE}
+titanic_data <- read_csv(file.path(COURSE_HOME,"data/train.csv"))
+```
+```{r, echo=FALSE}
+logistic_fit <- glm(data = titanic_data,
+            formula = Survived ~ Age + Sex + Pclass,
+            family=binomial(link = "logit")
+   )
+summary(logistic_fit)
+```
 
-##String/Factor Conversion    
+##Tidy Models with Broom
+`broom` is a package for creating tidy data frames model of output.
+* tidy data means complete freedom in plotting and analysis of model diagnostics
+
+
+##Augment data with diagnostics
+`augment()` puts model diagnostics along side data
+
+* great for exploring model fit with plots.
 ```{r, eval=FALSE}
-income_data <- read_csv(file.path(COURSE_HOME,"data/income.csv"))
-    
-income_data %>%
-    mutate_if(.predicate = is.character, 
-              .funs = as.factor)
+aug_model <- augment(logistic_fit, type.predict = "response")
+ggplot(aug_model) +
+    geom_bar( mapping = aes(x = 1:nrow(aug_model), y = .cooksd), stat = "identity")
 ```
 
-##Any NA?
-```{r, eval=TRUE}
-airquality %>%
-    summarise_all(.funs = anyNA)
-```
+* How would we find the high leverage points in the above plot?
 
-##5-Number Summary for Groups
-A 5 number summary for every month? Easy.
+##Convert a model to tidy data
+`tidy()` creates a tidy version of `summary()`
 ```{r}
-airquality %>%
-    group_by(Month) %>%
-    summarise_at(.cols = vars(Ozone, Solar.R, Wind, Temp),
-                 .funs = funs(q1 = quantile(., probs=0.25),
-                              med = median,
-                              mean = mean,
-                              q3 = quantile(., probs = 0.75),
-                              sd = sd 
-                          ),
-                 na.rm = TRUE
-                 )
+tidy_logistic_fit <- tidy(logistic_fit)
 ```
 
-## Combining Data
-* Sometimes you have multiple datasets you need to join together to create your tidy data set for analysis.
-* Common scenarios where this arises:
-    - Your data was extracted from a relational database (SQL): multiple tables
-    - You need to append public data to your dataset. E.g weather, financial indicies.
-    - Your data is published periodically. E.g. ABS stats, Financial reports etc.
+##Exercise
+(1.) Reproduce this plot for the effects from the `tidy()` output:
+![](./figs/effect_plot.png)
 
-## Joins
-* `dplyr::bind_rows()`, `dplyr::bind_cols()` can work for trival cases where we have exactly the same number of rows or columns.
-* For more complex cases we will need to consider a **join**.
-* Before you can join two or more datasets you need to identify the **key** column(s).
-    - These are columns that uniquely identify each row.
-    
-## Key example {.codefont}
-What is the key?
+##Exercise
+Starter Code:
 ```{r, eval=FALSE}
-#install.packages(nycflights13)
-library(nycflights13)
-data("planes")
-planes %>% View()
-data("flights")
-flights %>% View()
-data("weather")
-#weather %>% View()
+tidy_logistic_fit %>%
+  filter( term != "(Intercept)") %>%        
+  mutate(effect.lwr_ci = exp(estimate - 2*std.error),
+         effect = exp(estimate),
+         effect.upr_ci = exp(estimate + 2*std.error)) %>%
+  ggplot()
 ```
 
-## Join Example: Weather to Flights {.codefont}
-Is departure delay associated with temperature?
-```{r, eval=FALSE}
-flights2 <- flights %>% 
-  select(year:day, hour, origin, dest, tailnum, carrier, dep_delay)
 
-flight_weather <-
-  flights2 %>%
-  left_join(weather, by = c("year", "month", "day", "hour", "origin"))
-
-ggplot(flight_weather, aes(x=temp,y=dep_delay)) +
-  geom_point(alpha=0.2)
+##Model -> One Row
+* `glance()` creates a data frame with a 1 row summary
+    - The strength of this becomes apparent when comparing *many* models
+```{r}
+glance(logistic_fit)
 ```
 
-##Types of joins
-* We'll quickly walk though [the guide in R for Data Science](http://r4ds.had.co.nz/relational-data.html#understanding-joins).
-    - This is a great resource for further reading.
+#Purrr
 
-##Issues arising when joining
-* Missing values
-* Duplicate values
-
-
+##List Programming
+`purrr` provides tools for processing lists.

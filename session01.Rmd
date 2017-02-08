@@ -48,8 +48,8 @@ xml2
 3x Sessions intended to run about 50min each.
 
 * Session 1: Tidyverse style, Pipes (`%>%`), Tidy Data, Tidyr
-* Session 2: Dplyr, ggplot2
-* Session 3: Advanced Dplyr, Advanced Tidyr, purrr, modelr
+* Session 2: Dplyr, ggplot2, Advanced Dplyr,
+* Session 3: Broom, Advanced Tidyr, purrr, modelr 
 
 #Tidy Style
 

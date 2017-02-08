@@ -208,3 +208,90 @@ tb_cases_tidy <-
     - Make sure it is tidy!
 * Learn the concepts of ggplot2. The details are there in the documentation when you need them.
 
+#Deep Dplyr
+
+##Delving Further into dplyr
+* `mutate` and `summarise` have conditional versions to make large scale wrangling a breeze.
+* E.g. `mutate()` is part of a family that contains `mutate_at()`, `mutate_all()`, `mutate_if()`
+    - Can do some pretty cool tricks!
+
+##String/Factor Conversion    
+```{r, eval=FALSE}
+income_data <- read_csv(file.path(COURSE_HOME,"data/income.csv"))
+    
+income_data %>%
+    mutate_if(.predicate = is.character, 
+              .funs = as.factor)
+```
+
+##Any NA?
+```{r, eval=TRUE}
+airquality %>%
+    summarise_all(.funs = anyNA)
+```
+
+##5-Number Summary for Groups
+A 5 number summary for every month? Easy.
+```{r}
+airquality %>%
+    group_by(Month) %>%
+    summarise_at(.cols = vars(Ozone, Solar.R, Wind, Temp),
+                 .funs = funs(q1 = quantile(., probs=0.25),
+                              med = median,
+                              mean = mean,
+                              q3 = quantile(., probs = 0.75),
+                              sd = sd 
+                          ),
+                 na.rm = TRUE
+                 )
+```
+
+#Joins
+
+## Combining Data
+* Sometimes you have multiple datasets you need to join together to create your tidy data set for analysis.
+* Common scenarios where this arises:
+    - Your data was extracted from a relational database (SQL): multiple tables
+    - You need to append public data to your dataset. E.g weather, financial indicies.
+    - Your data is published periodically. E.g. ABS stats, Financial reports etc.
+
+## Joins
+* `dplyr::bind_rows()`, `dplyr::bind_cols()` can work for trival cases where we have exactly the same number of rows or columns.
+* For more complex cases we will need to consider a **join**.
+* Before you can join two or more datasets you need to identify the **key** column(s).
+    - These are columns that uniquely identify each row.
+    
+## Key example {.codefont}
+What is the key?
+```{r, eval=FALSE}
+#install.packages(nycflights13)
+library(nycflights13)
+data("planes")
+planes %>% View()
+data("flights")
+flights %>% View()
+data("weather")
+weather %>% View()
+```
+
+## Join Example: Weather to Flights {.codefont}
+Is departure delay associated with temperature?
+```{r, eval=FALSE}
+flights2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier, dep_delay)
+
+flight_weather <-
+  flights2 %>%
+  left_join(weather, by = c("year", "month", "day", "hour", "origin"))
+
+ggplot(flight_weather, aes(x=temp,y=dep_delay)) +
+  geom_point(alpha=0.2)
+```
+
+##Types of joins
+* We'll quickly walk though [the guide in R for Data Science](http://r4ds.had.co.nz/relational-data.html#understanding-joins).
+    - This is a great resource for further reading.
+
+##Issues arising when joining
+* Missing values - Key did not match
+* Duplicate values - Key is not unique
