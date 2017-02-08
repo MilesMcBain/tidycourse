@@ -12,6 +12,7 @@ library(tidyverse)
 library(broom)
 library(knitr)
 library(here)
+library(modelr)
 COURSE_HOME <- here()
 ```
 
@@ -78,4 +79,29 @@ glance(logistic_fit)
 #Purrr
 
 ##List Programming
-`purrr` provides tools for processing lists.
+`purrr` provides tools for applying functions to lists.
+* the `map()` family are similar to `apply()` but give you explicit control of the returned data structure. 
+    -also understand data.frames and work inutuitively
+```{r, eval=FALSE}
+airquality %>% 
+    map(is.na)
+
+airquality %>%
+    map_df(is.na) %>%
+    as.matrix() %>%
+    t() %>%
+    image()
+```
+
+#Modelr
+
+##Tidy Modelling
+* `modelr` is a new way to look at fitting and evaluating sets of models.
+* It provides facilities for creating training, test and cv datasets in tidy data frames
+
+#K-fold-CV
+```{r}
+titanic_cv_data <-
+    titanic_data %>%
+    crossv_kfold(k = 3)
+
