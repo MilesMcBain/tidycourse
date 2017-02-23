@@ -1,0 +1,194 @@
+---
+title: "Sick Riffs From the Tidyverse"
+author: "Miles McBain"
+date: "February 23, 2017"
+output: 
+    ioslides_presentation:
+        css: ./style.css
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(broom)
+library(knitr)
+library(here)
+library(modelr)
+library(alr3)
+```
+
+#The Tidyverse
+
+##What is the tidyverse?
+* The [tidyverse](http://tidyverse.org/) is the collective name given to suite of R packages designed mostly by Hadley Wickham.
+* Before it was formalised in 2016 it was loosely referred to as the `hadleyverse`.
+* Packages share a common API and design philosohpy intended to create a **"Pit of Success"**.
+* Basically it makes you look awesome:
+
+<div>
+<img src="http://i.giphy.com/MGZP3Kk1GstwI.gif" alt="Math Math Math" style="display: block; margin-left: auto; margin-right: auto">
+</div>
+
+##Members of the tidyverse
+broom, **dplyr**, forcats,
+**ggplot2**, haven, httr,
+hms, jsonlite, lubridate,
+magrittr, modelr, purrr,
+**readr**, readxl, stringr,
+tibble, rvest, **tidyr**,
+xml2
+
+* Which of these are we familiar with?
+
+##Tidy Style
+* Tidyverse code has a certain look:
+```{r, eval = FALSE}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+-[Grolemund, Wickham, 2016 R for Data Science](http://r4ds.had.co.nz/tidy-data.html#case-study)
+
+## Why %>% helps in the tidyverse
+* dataframes (tibbles) are the universal input and output format:
+```{r, eval = FALSE}
+iris #dataframe
+iris_setosa <- filter(iris, Species == "setosa") #in: data.frame, out: tibble
+iris_setosa_pet <- arrange(iris_setosa, Petal.Length) #in: tibble, out: tibble
+head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
+```
+* Creating functional chains with `%>%` is easy when you don't have to worry about the input and output types.
+
+## Tidy Data
+* The tools in the tidyverse are geared toward:
+    - Turning data into tidy data
+    - Plotting/Modelling/Analysing Tidy Data
+    
+<center>![](./figs/bad_time.jpg)</center>
+
+## What is Tidy Data?
+* [Hadley Wickham's 2014 JSS Paper](https://www.jstatsoft.org/article/view/v059i10)
+    - 1 observation = 1 row
+    - 1 variable = 1 column
+    
+## Is This Tidy Data?
+```{r, echo=FALSE}
+knitr::kable(head(mtcars))
+```
+
+## Is This Tidy Data?
+```{r, echo=FALSE}
+knitr::kable(tribble(
+    ~FY, ~Week, ~Mon, ~Tue, ~Wed, ~Thur, ~Fri, ~Sat, ~Sun,
+    1617,    1,   40,   45,   58,    74,   92,   80,  116,
+    1617,    2,   38,   42,   63,    76,   88,   90,  120,
+    1617,    3,   32,   43,   59,    68,   102,  78,   91
+))
+```
+
+## Tidied! (almost)
+```{r, echo=FALSE}
+knitr::kable(tribble(
+    ~FY, ~Week, ~Mon, ~Tue, ~Wed, ~Thur, ~Fri, ~Sat, ~Sun,
+    1617,    1,   40,   45,   58,    74,   92,   80,  116,
+    1617,    2,   38,   42,   63,    76,   88,   90,  120,
+    1617,    3,   32,   43,   59,    68,   102,  78,   91
+) %>% gather(key = "Day", value = "Sales", Mon:Sun)
+)
+    
+```
+
+# Tidy Riffs
+
+## Tools + Data
+Todays's examples use:
+
+* These datasets: `mtcars`, `airquality`, `mpg`, `alr3::challeng`
+* These packages: `tidyr`, `dplyr`, `broom`, `purrr`, `modelr`
+
+# VOLUME = 1
+
+##String/factor convert-all
+Task: Convert all the character columns of `mpg` to factor. And convert back.
+
+* Useful companion to `stringsAsFactors = FALSE`
+
+Starter Code:
+```{r, eval = FALSE}
+mpg %>%
+    
+```
+
+##Lazy NA check
+Task tell me which columns in `airquaility` contain `NA` values.
+
+```{r, eval = FALSE}
+airquality %>%
+```
+
+##Lazy NA vis
+SHOW me the NAs in `airqaulity` (like `vim`).
+
+```{r, eval = FALSE}
+airquality %>%
+  map_df(
+```
+
+# VOLUME = 2
+
+##Monthly Top 3
+Determine the hottest 3 days of every month in `airquality`.
+
+```{r, eval = FALSE}
+airquality %>%
+```
+
+##Bulk Summary Stats
+Compute the 5(6) number summary for every continuous variable in `airquality`. Return result as dataframe.
+
+```{r, eval = FALSE}
+airquality %>%
+```
+
+##Bonus Variation: Bulk Lags
+Add the 1st, 3rd, 7th, and 14th daily lags to every continuous vairable in `airquality`.
+
+```{r, eval = FALSE}
+airquality %>%
+```
+
+#VOLUME = 3
+## Slick Effect Plot
+(1.) Reproduce this same kinf of plot for the effects from the `tidy()` output of a glm fit on the `challeng` dataset:
+![](./figs/effect_plot.png)
+
+##Slick Effect Plot Statrer Code
+```{r, eval = FALSE}
+data("challeng")
+
+glm_fit <-
+  challeng %>% 
+  glm(data = .,
+      formula =  cbind(Fail, n-Fail) ~ Temp + Pres, 
+      family = binomial(link="logit"))
+```
+
+#VOLUME = 11
+
+##Search model space over formulae, link functions, ANYTHING.
+Find the best model for `challeng` considering 3 links functions and 2 model formulas.
+```{r, eval = FALSE}
+data("challeng")
+link <- c("logit", "probit", "cloglog")
+formulas <- formulas(.response = ~ cbind(Fail, n-Fail), 
+                     ~ Temp, 
+                     ~ Temp + Pres) 
+
+model_grid <- as_data_frame(expand.grid(formulas, link, 
+                                        stringsAsFactors = FALSE))
+names(model_grid) <- c("formula","link") 
+```
+
+
