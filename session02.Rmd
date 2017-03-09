@@ -18,7 +18,7 @@ COURSE_HOME <- here()
 
 ## Datasets
 This section is about shaping data. Let's familise ourselves with the data our examples will work on:
-```{r}
+```{r, eval=FALSE}
 mtcars
 airquality
 mpg
@@ -189,7 +189,7 @@ tb_cases_tidy <-
 
 
 ## The Worst Plot Ever
-```{r, echo = false}
+```{r, echo = FALSE}
     mpg %>%
     ggplot() +
     geom_point(mapping = aes(x = year, y = cty))

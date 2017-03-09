@@ -126,6 +126,17 @@ head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
 ```
 * Creating functional chains with `%>%` is easy when you don't have to worry about the input and output types.
 
+##What's a Tibble?
+A tibble is the vessel of data in the `tidyverse`. It is a better data frame that tries to always behave as you **expect**. Practically this means:
+
+* A tibble will never convert strings to factors. 
+* It behaves consistently with `[` and `[[`
+    - `tib[1]`, `tib[,1]` return tibbles while `tib[[1]]` returns a vector.
+    - Never drops dimensions.
+* It doesn't bother with partial column name matching.
+* Printing a tibble always prints a short summary that won't overflow your console.
+* Generates warning when trying to index an unknown column.
+
 ## Pitfalls of %>%
 * Since `%>%` is an operator, it has a position in the order of precedence. 
 * This leads to some surprising results:
