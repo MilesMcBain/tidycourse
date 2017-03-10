@@ -11,6 +11,7 @@ output:
 library(tidyverse)
 library(knitr)
 library(here)
+library(nycflights13)
 COURSE_HOME <- here()
 ```
 
@@ -128,7 +129,7 @@ airquality %>%
 ##Conditional Mutate?
 A common question is: "How can I conditionally mutate a row of data?"
 
-Two options: `if_else()` and `recode()`
+Options: `if_else()` and `recode()`
 
 ```{r, eval=F}
 airquality %>%
@@ -189,7 +190,7 @@ tb_cases_tidy <-
 
 
 ## The Worst Plot Ever
-```{r, echo = false}
+```{r, echo = FALSE}
     mpg %>%
     ggplot() +
     geom_point(mapping = aes(x = year, y = cty))
@@ -232,7 +233,7 @@ airquality %>%
 
 ##5-Number Summary for Groups
 A 5 number summary for every month? Easy.
-```{r}
+```{r, eval=FALSE}
 airquality %>%
     group_by(Month) %>%
     summarise_at(.cols = vars(Ozone, Solar.R, Wind, Temp),
@@ -246,21 +247,30 @@ airquality %>%
                  )
 ```
 
-#Joins
+#Joining Data
 
-## Combining Data
-* Sometimes you have multiple datasets you need to join together to create your tidy data set for analysis.
+## When You Join
+* You have data spread over multiple sources you need to merge to create a dataset for analysis.
 * Common scenarios where this arises:
     - Your data was extracted from a relational database (SQL): multiple tables
     - You need to append public data to your dataset. E.g weather, financial indicies.
     - Your data is published periodically. E.g. ABS stats, Financial reports etc.
 
-## Joins
-* `dplyr::bind_rows()`, `dplyr::bind_cols()` can work for trival cases where we have exactly the same number of rows or columns.
-* For more complex cases we will need to consider a **join**.
-* Before you can join two or more datasets you need to identify the **key** column(s).
-    - These are columns that uniquely identify each row.
+##Considerations for Joining
+`A joins B` based on a "key" or "ID"
+    - What are examples of these?
     
+What do we do with?
+
+* Data in `A` that cannot be matched to `B`?
+* Data in `B` that cannot be matched to `A`?
+
+##Joining Functions
+![](./figs/joins.png)
+
+Plus: `semi_join()` or `A %in% B`
+
+
 ## Key example {.codefont}
 What is the key?
 ```{r, eval=FALSE}

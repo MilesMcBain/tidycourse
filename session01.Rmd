@@ -44,12 +44,13 @@ xml2
 * **bold** indicates particularly famous members. 
 * Which of these are we familiar with?
 
-## Structure of This Course
+## Structure of This Course TODO:Rejig
 3x Sessions intended to run about 50min each.
 
 * Session 1: Tidyverse style, Pipes (`%>%`), Tidy Data, Tidyr
 * Session 2: Dplyr, ggplot2, Advanced Dplyr,
 * Session 3: Broom, Advanced Tidyr, purrr, modelr 
+
 
 #Tidy Style
 
@@ -64,6 +65,8 @@ who %>%
   separate(sexage, c("sex", "age"), sep = 1)
 ```
 -[Grolemund, Wickham, 2016 R for Data Science](http://r4ds.had.co.nz/tidy-data.html#case-study)
+
+You can ignore the arguments and grok the higher level story by reading it like an [acrostic](http://www.acrosticpoem.org/).
 
 ##Style Guide
 * The documentation of this style is still evolving.
@@ -128,7 +131,7 @@ head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
 
 ## Pitfalls of %>%
 * Since `%>%` is an operator, it has a position in the order of precedence. 
-* This leads to some surprising results:
+* This leads to some [surprising results](https://twitter.com/hadleywickham/status/829103271109332993):
 ```{r}
 a <- c(TRUE,FALSE,NA)
 !is.na(a) %>% which()
@@ -146,8 +149,8 @@ a <- c(TRUE,FALSE,NA)
 
 ## Tidy Data
 * The tools in the tidyverse are geared toward:
-    - Turning data into tidy data
-    - Plotting/Modelling/Analysing Tidy Data
+    1. Turning data into Tidy Data
+    2. Plotting/Modelling/Analysing Tidy Data
     
 <center>![](./figs/bad_time.jpg)</center>
 

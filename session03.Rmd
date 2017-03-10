@@ -93,6 +93,14 @@ airquality %>%
     image()
 ```
 
+##Map/Reduce
+
+##Formula syntax
+
+##Do you even lift()?
+
+
+
 #Modelr
 
 ##Tidy Modelling

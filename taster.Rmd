@@ -76,6 +76,9 @@ head(iris_setosa_pet) #in: tibble, out: tibble, side effect: print to console
 ## Is This Tidy Data?
 ```{r, echo=FALSE}
 knitr::kable(head(mtcars))
+
+mtcars %>%
+    mutate(make = row.names(.))
 ```
 
 ## Is This Tidy Data?
@@ -118,6 +121,8 @@ Task: Convert all the character columns of `mpg` to factor. And convert back.
 Starter Code:
 ```{r, eval = FALSE}
 mpg %>%
+    mutate_if( .predicate = is.character,
+               .funs = as.factor)
     
 ```
 
@@ -126,6 +131,7 @@ Task tell me which columns in `airquaility` contain `NA` values.
 
 ```{r, eval = FALSE}
 airquality %>%
+    map_df(anyNA)
 ```
 
 ##Lazy NA vis
@@ -133,7 +139,10 @@ SHOW me the NAs in `airqaulity` (like `vim`).
 
 ```{r, eval = FALSE}
 airquality %>%
-  map_df(
+  map_df(is.na) %>%
+  as.matrix() %>%
+  t() %>%
+  image()  
 ```
 
 # VOLUME = 2
@@ -143,13 +152,19 @@ Determine the hottest 3 days of every month in `airquality`.
 
 ```{r, eval = FALSE}
 airquality %>%
+    group_by(Month) %>%
+    arrange(desc(Temp)) %>%
+    slice(1:3)
 ```
 
 ##Bulk Summary Stats
 Compute the 5(6) number summary for every continuous variable in `airquality`. Return result as dataframe.
 
 ```{r, eval = FALSE}
-airquality %>%
+airquality %>% 
+    group_by(Month) %>%
+    summarise_at(.cols,
+                 .funs)
 ```
 
 ##Bonus Variation: Bulk Lags
@@ -173,6 +188,16 @@ glm_fit <-
   glm(data = .,
       formula =  cbind(Fail, n-Fail) ~ Temp + Pres, 
       family = binomial(link="logit"))
+
+summary(glm_fit)
+
+tidy(glm_fit, conf.int = TRUE) %>%
+    ggplot() +
+    geom_point(aes(x=estimate, y=term)) +
+    geom_errorbarh(aes(x=estimate, 
+                     xmax=conf.high, 
+                     xmin=conf.low, 
+                     y=term)) 
 ```
 
 #VOLUME = 11
@@ -189,6 +214,9 @@ formulas <- formulas(.response = ~ cbind(Fail, n-Fail),
 model_grid <- as_data_frame(expand.grid(formulas, link, 
                                         stringsAsFactors = FALSE))
 names(model_grid) <- c("formula","link") 
+
+model_grid %>%
+    mutate(family = map(binomial, family))
 ```
 
 
