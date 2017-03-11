@@ -16,6 +16,58 @@ library(modelr)
 COURSE_HOME <- here()
 ```
 
+#Advanced Tidy Data Structures
+
+#Purrr
+
+##List Programming
+`purrr` is the Tidyverse answer to the `apply` family from base R. It contains an array of tools to make applying functions to lists, vectors, and dataframes clear and fit with other tasks in the tidyverse.
+
+* the `map()` family are similar to `apply()` but gives you explicit control of the returned data structure. 
+
+Examples:
+```{r, eval=FALSE}
+airquality %>%
+    map(is.na)
+
+airquality %>%
+    map_df(is.na)
+```
+
+##Formula syntax
+Function prototypes can be provided to `map()` with a formula syntax, making 
+```{r, eval=FALSE}
+list(low = 1, med = 1.5, high = 2) %>%
+    map( ~rnorm(mean = 0, sd = ., n=100))
+
+```
+
+Exercise: (1.) Plot the densities of the sampled distributions overlaid in ggplot2.
+
+##Map + Mutate
+The control of return type, `map()` makes it very powerful in combination with `dplyr::mutate()`. In this example we want to find out how many dependencies each of the tidyverse packages have on CRAN.
+
+```{r, eval=FALSE}
+
+```
+
+
+
+
+##Indexing lists
+
+##pmap
+
+##Map/Reduce
+
+
+
+##Do you even lift()?
+
+
+#Purrr + Tidyr: NEST, UNNEST
+
+
 #Tidy Models
 
 ## Hello old friend | A linear model (logistic regression) {.codefont}
@@ -76,31 +128,6 @@ tidy_logistic_fit %>%
 glance(logistic_fit)
 ```
 
-#Purrr
-
-##List Programming
-`purrr` provides tools for applying functions to lists.
-* the `map()` family are similar to `apply()` but give you explicit control of the returned data structure. 
-    -also understand data.frames and work inutuitively
-```{r, eval=FALSE}
-airquality %>% 
-    map(is.na)
-
-airquality %>%
-    map_df(is.na) %>%
-    as.matrix() %>%
-    t() %>%
-    image()
-```
-
-##Map/Reduce
-
-##Formula syntax
-
-##Do you even lift()?
-
-
-
 #Modelr
 
 ##Tidy Modelling
@@ -112,4 +139,9 @@ airquality %>%
 titanic_cv_data <-
     titanic_data %>%
     crossv_kfold(k = 3)
+```
+
+#Nesting and Unnesting
+`tidyr` contains two functions that allow us to deal with new types of nested data frames.
+
 
