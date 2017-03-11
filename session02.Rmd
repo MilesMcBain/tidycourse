@@ -129,18 +129,25 @@ airquality %>%
 ##Conditional Mutate?
 A common question is: "How can I conditionally mutate a row of data?"
 
-Options: `if_else()` and `recode()`
+Options: `if_else()`, `recode()`, and `case_when()`
 
 ```{r, eval=F}
 airquality %>%
     mutate(Temp = if_else(Temp > 90, true = as.integer(NA), false = Temp))
+# Why did we have to do `as.integer(NA)`?
 
 iris %>%
     mutate(Species = recode(Species, setosa = "S", versicolor = "V")) %>%
     group_by(Species) %>%
     slice(1)
+
+mpg %>%
+    mutate(class = case_when(.$class == "pickup" ~ "ute",  #condition ~ replcement
+                             TRUE ~ "not a ute")
+    )  
+# See an alternative to `.$` later. In the next version of dyplyr, no `.$` needed!!
 ```
-* Why did we have to do `as.integer(NA)`?
+
 
 ##Tidyr vs Dplyr
 * **Remember:** if it feels like you're fighting the tidyverse you're probably doing it wrong. 
@@ -247,6 +254,14 @@ airquality %>%
                  )
 ```
 
+##Exercise 
+
+(6.) Apply rounding to only the `Petal` columns is iris.
+```{r, eval=FALSE}
+iris %>%
+```
+
+
 #Joining Data
 
 ## When You Join
@@ -270,38 +285,32 @@ What do we do with?
 
 Plus: `semi_join()` or `A %in% B`
 
+* More info: [Joins in R for Data Science](http://r4ds.had.co.nz/relational-data.html#understanding-joins)
 
-## Key example {.codefont}
-What is the key?
+## Exercise: Join Weather to Flights {.codefont}
+
+`nycflights13` is a databse of all flights that departed NYC in 2013. 
+
+(7.) We want to join: `nycflights13::flights` and `nycflights13::weather`, perhaps to explore the relationship between weather and delays.
+
+To do this:
+
+ 1. Identify the join key
+ 2. Choose the type of join and what role each dataset will play.
+ 3. Perform join and check for issues.
+ 
 ```{r, eval=FALSE}
-#install.packages(nycflights13)
-library(nycflights13)
-data("planes")
-planes %>% View()
 data("flights")
-flights %>% View()
 data("weather")
+flights %>% View()
 weather %>% View()
 ```
 
-## Join Example: Weather to Flights {.codefont}
-Is departure delay associated with temperature?
-```{r, eval=FALSE}
-flights2 <- flights %>% 
-  select(year:day, hour, origin, dest, tailnum, carrier, dep_delay)
 
-flight_weather <-
-  flights2 %>%
-  left_join(weather, by = c("year", "month", "day", "hour", "origin"))
+##Final Word on Joins
+Main issues to look out for:
 
-ggplot(flight_weather, aes(x=temp,y=dep_delay)) +
-  geom_point(alpha=0.2)
-```
-
-##Types of joins
-* We'll quickly walk though [the guide in R for Data Science](http://r4ds.had.co.nz/relational-data.html#understanding-joins).
-    - This is a great resource for further reading.
-
-##Issues arising when joining
 * Missing values - Key did not match
 * Duplicate values - Key is not unique
+
+Many people recommend using a `left_join()` wherever possible. Why is this?
