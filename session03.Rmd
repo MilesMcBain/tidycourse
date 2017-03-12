@@ -12,18 +12,21 @@ library(tidyverse)
 library(broom)
 library(knitr)
 library(here)
+library(devtools)
 library(modelr)
 COURSE_HOME <- here()
 ```
 
-#Advanced Tidy Data Structures
+##Advanced Tidyverse Data Structures
+Overview: In this session we introduce advanced `tidyr`, `purrr`,`broom`,`modelr`. 
+
 
 #Purrr
 
 ##List Programming
 `purrr` is the Tidyverse answer to the `apply` family from base R. It contains an array of tools to make applying functions to lists, vectors, and dataframes clear and fit with other tasks in the tidyverse.
 
-* the `map()` family are similar to `apply()` but gives you explicit control of the returned data structure. 
+* The `map()` family are similar to `apply()` but gives you explicit control of the returned data structure. 
 
 Examples:
 ```{r, eval=FALSE}
@@ -35,11 +38,13 @@ airquality %>%
 ```
 
 ##Formula syntax
-Function prototypes can be provided to `map()` with a formula syntax, making 
+Function prototypes can be provided to `map()` with a formula syntax, creating a function prototype that is easy to read. 
+
+`.x` Is the where the list elements are placed in the function call.
+
 ```{r, eval=FALSE}
 list(low = 1, med = 1.5, high = 2) %>%
-    map( ~rnorm(mean = 0, sd = ., n=100))
-
+    map(~rnorm(mean = 0, sd = .x, n=100))
 ```
 
 Exercise: (1.) Plot the densities of the sampled distributions overlaid in ggplot2.
@@ -49,23 +54,155 @@ The control of return type, `map()` makes it very powerful in combination with `
 
 ```{r, eval=FALSE}
 
+source(file.path(COURSE_HOME,"R/tidypacks.R"))
+
+deps_df <- 
+    tidypacks %>%
+    mutate(dependent_packs = map(package, revdep)) 
+#could take a minute to run.
+```
+
+What are the contents of the `dependent_packs` column?
+
+##Exercise: Exclude Tidyverse Packages From Count
+On problem is that `dependent_packs` contains packages in the Tidyverse. For example most `tidyverse` packages have a dependency on `tibble`. 
+
+How can we remove all packages in Tidyverse from each list in the `dependent_packs` column?
+
+Exercise: (2.) Calculate the number of depenencies on CRAN for each tidyverse package, exlcuding those in the tidyverse.
+
+Hint: Dplyr has some funcitons for set operations.
+
+```{r, eval=FALSE}
+deps_df_no_tidy <-
+    deps_df %>%
+    mutate(dependent_packs = 
+```
+
+##Map/Reduce
+`purrr` also provides a reduce function to summarise lists/vectors.
+
+For example:
+```{r, eval=FALSE}
+list(1,2,3,4) %>% reduce(`*`)
+
+#equivalent to
+
+(((1 * 2) * 3) * 4)
+#OR
+`*`(`*`(`*`(1,2), 3), 4)
+```
+
+##Exercise: Calculate the Total CRAN packages that Depend on the Tidyverse.
+
+(3.) Using `reduce` we can avoid double counting and find the total number of CRAN packages that depend on one or more tidyverse packages.
+
+```{r, eval=FALSE}
+deps_df_no_tidy %>%
 ```
 
 
+##Other purrr features: Indexing lists
+```{r, eval=FALSE}
+geo_data <- tribble(
+    ~location, ~coord,
+          "A", list(x = 0, y = 1),
+          "B", list(x = 1, y = 0),
+          "C", list(x = -1, y = -1)
+)
+
+geo_data %>%
+    mutate(x = map_dbl(coord, "x"),
+           y = map_dbl(coord, "y")) %>%
+    select(-coord)
+
+```
 
 
-##Indexing lists
-
-##pmap
-
-##Map/Reduce
-
-
-
-##Do you even lift()?
+##Exercise: Why doesn't this work?
+What are we trying to do and why doesn't it work?
+```{r, eval=FALSE}
+geo_data %>%
+    mutate(max_coord = map_dbl(coord, max)) %>%
+    select(-coord)
+```
 
 
-#Purrr + Tidyr: NEST, UNNEST
+##Final Remarks on Purrr
+`purrr` is powerful tool for building Tidy Data from raw materials. Unfortunately its documentation is very brief. Examples are the best way to learn. We will see some further examples in this session.
+
+For some a great collection of examples see: [https://jennybc.github.io/purrr-tutorial/index.html](https://jennybc.github.io/purrr-tutorial/index.html)
+    - [Talk by Jenny Bryan](https://www.youtube.com/watch?v=GapSskrtUzU])
+
+
+#Advanced Tidyr 
+
+##Nesting and Unnesting
+`tidyr` can be used to create columns of nested tibbles. Yes - tibble columns can contain tibbles! 
+
+[](./figs/nesting.jpg)
+
+##Nesting and Unnesting: How?
+Sometimes it's easier to say what you want to leave out of the nesting:
+
+```{r, eval=FALSE}
+mpg %>% nest(-year) # nest all columns other than year.
+
+#or
+
+mpg %>%
+    group_by(year) %>%
+    nest() # nest according to groups 
+```
+
+##Nesting and Unnesting: Why?
+You can use `map` a funciton to a whole nested `tibble` using `dplyr` verbs:
+```{r, eval=FALSE}
+mpg_years <-
+    mpg %>%
+    group_by(year) %>%
+    nest() %>%
+    mutate(lm_model = map(data, 
+                       ~lm(formula = cty ~ displ + cyl + manufacturer, .x)),
+           coefs = map(lm_model, "coefficients"))
+
+mpg_years$coefs
+```
+
+Can you think of other functions you might use in this way?
+
+##Unnesting
+`unnest` performs the reverse of nest. It only works with nested *tibbles or vectors, not lists*.
+
+```{r, eval=FALSE}
+mpg_years %>%
+    ungroup() %>%
+    unnest(data, .drop = FALSE) %>% View()
+
+#by default .drop = TRUE. 
+#Anything that would have to be duplicated will get dropped.
+```
+
+What gets dropped if `.drop = TRUE`?
+
+##Exercsise: Leveraging unnest
+
+(4.) With `geo_data` defined earlier, use `unnest` to explode the nested `x` and `y` coordinates into new columns.
+
+```{r, eval=FALSE}
+geo_data %>%
+```
+
+(5.) **Challenge!:** Use the same approach to arrive at:
+```{r, eval=FALSE}
+source(file.path(COURSE_HOME,"R/mpg_yrs_tidy.R"))
+mpg_yrs_tidy
+```
+
+##Nesting + Dplyr + Purrr 
+Nesting data within lists allows us to use `dplyr` + `purrr` to process it and **keep the results within a data frame**.  
+
+But the code from (5.) is not really clear or tidy... there is a better way.
 
 
 #Tidy Models
@@ -141,7 +278,4 @@ titanic_cv_data <-
     crossv_kfold(k = 3)
 ```
 
-#Nesting and Unnesting
-`tidyr` contains two functions that allow us to deal with new types of nested data frames.
-
-
+#broom::inflate
