@@ -210,6 +210,9 @@ But the code from (5.) is not really clear or tidy... there is a better way.
 ## Hello old friend | A linear model (logistic regression) {.codefont}
 ```{r, echo=FALSE, message=FALSE}
 titanic_data <- read_csv(file.path(COURSE_HOME,"data/train.csv"))
+titanic_data <- 
+    titanic_data %>%
+    filter(!is.na(Age))
 ```
 ```{r, echo=FALSE}
 logistic_fit <- glm(data = titanic_data,
@@ -220,8 +223,9 @@ summary(logistic_fit)
 ```
 
 ##Tidy Models with Broom
-`broom` is a package for creating tidy data frames model of output.
-* tidy data means complete freedom in plotting and analysis of model diagnostics
+`broom` is a package for creating tidy dataframes model of output.
+
+* tidy data means all the power of the tidyveryse in plotting and analysis of model diagnostics.
 
 
 ##Augment data with diagnostics
@@ -230,17 +234,26 @@ summary(logistic_fit)
 * great for exploring model fit with plots.
 ```{r, eval=FALSE}
 aug_model <- augment(logistic_fit, type.predict = "response")
+
 ggplot(aug_model) +
-    geom_bar( mapping = aes(x = 1:nrow(aug_model), y = .cooksd), stat = "identity")
+    geom_bar( mapping = aes(x = 1:nrow(aug_model), y = .cooksd), 
+              stat = "identity")
 ```
 
 * How would we find the high leverage points in the above plot?
 
 ##Convert a model to tidy data
-`tidy()` creates a tidy version of `summary()`
+`tidy()` creates a tidy data version of `summary()`.
+
+There a tidying functions for most model types, called 'tidiers'.
+   
 ```{r}
-tidy_logistic_fit <- tidy(logistic_fit)
+tidy_logistic_fit <- tidy(logistic_fit, 
+                          exponentiate = TRUE, 
+                          conf.int = TRUE)
 ```
+
+* **Bayesians** see `broom::tidyMCMC()`
 
 ##Exercise
 (1.) Reproduce this plot for the effects from the `tidy()` output:
@@ -250,13 +263,23 @@ tidy_logistic_fit <- tidy(logistic_fit)
 Starter Code:
 ```{r, eval=FALSE}
 tidy_logistic_fit %>%
-  filter( term != "(Intercept)") %>%        
-  mutate(effect.lwr_ci = exp(estimate - 2*std.error),
-         effect = exp(estimate),
-         effect.upr_ci = exp(estimate + 2*std.error)) %>%
-  ggplot()
+
 ```
 
+##Tidy All the Things!
+`tidy()` also works with statistical test output from `t.test`, `cor.test`, `wilcox.test` etc.
+
+Examples:
+```{r, eval = FALSE}
+logistic_fit %>%
+    anova() %>%
+    tidy()
+
+iris %>% 
+    filter(Species != "virginica") %>%
+    t.test(Sepal.Length ~ Species, .) %>%
+    tidy()
+```
 
 ##Model -> One Row
 * `glance()` creates a data frame with a 1 row summary
@@ -269,13 +292,106 @@ glance(logistic_fit)
 
 ##Tidy Modelling
 * `modelr` is a new way to look at fitting and evaluating sets of models.
-* It provides facilities for creating training, test and cv datasets in tidy data frames
+* It provides facilities for creating cross-validation datasets in tidy data frames.
+* When combined with `purrr` and `dplyr` is provides powerful helper funcitons for grid search and model tuning.
 
-#K-fold-CV
-```{r}
-titanic_cv_data <-
-    titanic_data %>%
-    crossv_kfold(k = 3)
+##Partitioning functions
+Partition functions create resamples of the data that behave like a list of indicies but are easily converted to data. 
+
+Available partitioning schemes are:
+
+* `bootstrap()` - n resamples of data with replacement 
+* `crossv_kfold()` - k exclusive test/train partitions
+* `crossv_mc()`  - n random test/train paritions of specified proportion
+
+```{r, eval = FALSE}
+#some income regression data
+income_data <- modelr::heights
+cv_folds <- crossv_kfold(income_data, k=10)
+#looks like a list of indicies
+cv_folds$train[[1]] 
+#Magic!
+as_tibble(cv_folds$train[[1]])
+
+cv_folds$train[[1]] 
 ```
 
-#broom::inflate
+## Can you see where this is going?
+Question: Do we have any theories yet on how `modelr` + `dyplr` + `tidyr` + `broom` + `purrr` might combine for a tidy modelling workflow?
+
+<center>![](http://i.giphy.com/wViS9n0RqN2.gif)</center>
+
+##Exercise: 10-fold CV LM
+
+(7.) Fit the same lm, `income ~ .`,  to all 10 training sets in `cv_folds`. Score each model by MAE on test set.
+
+```{r, eval=FALSE}
+cv_fit <-
+    cv_folds 
+```
+
+(8.) Use ggplot2 to compare the distributions of MAE on train and test
+```{r, eval=FALSE}
+cv_fit %>%
+    select(mae_test, mae_train) %>%
+```
+
+##Searching Model Space
+You can use this workflow to explore model space by trying many combinations of model parameters like:
+
+* formulae
+* link function
+* tuning parameters
+
+Example[Searching over link and formula]
+```{r, eval=FALSE, echo=FALSE}
+links <- c("logit", "probit", "cloglog")
+model_space <- formulas(.response = ~ Survived, 
+                     ~ Age + Sex, 
+                     ~ Age + Sex + Pclass,
+                     ~ Age + Sex + Pclass + Pclass:Sex) 
+
+model_grid <- as_data_frame(expand.grid(model_space, links, stringsAsFactors = FALSE))
+names(model_grid) <- c("formula","link") 
+
+model_grid_output <-
+    model_grid %>%
+    mutate(family = map(link, binomial),
+           fit = pmap(.l = list( formula = formula, family = family),
+                      .f = glm,
+                      data = titanic_data,
+                      model = FALSE),              
+           results = map(fit, glance)) %>%
+    unnest(results) %>%
+    arrange(desc(AIC))
+
+View(model_grid_output)
+```
+
+##Final Words on Modelr
+`modelr` is still under development. There are some changes in the works so watch these spaces:
+
+* [Max Kuhn](https://github.com/topepo). - Max is working on a new way of expressin modelling formulas
+* [modelr](https://github.com/hadley/modelr)
+
+The overall tidyverse worflow will remain the same.
+
+#The rest of the Tidyverse and You
+
+##Questions?
+Who has a challenge they want to solve the `tidyverse` way?
+
+Anything you want to revisit?
+
+##Members of the tidyverse
+broom, **dplyr**, forcats,
+**ggplot2**, haven, httr,
+hms, jsonlite, lubridate,
+magrittr, modelr, purrr,
+**readr**, readxl, stringr,
+tibble, rvest, **tidyr**,
+xml2
+
+##Thankyou!
+
+

@@ -45,7 +45,7 @@ xml2
 * Which of these are we familiar with?
 
 ## Structure of This Course TODO:Rejig
-3x Sessions intended to run about 50min each.
+3x Sessions intended to run about 90 min each.
 
 * Session 1: Tidyverse style, Pipes (`%>%`), Tidy Data, Tidyr
 * Session 2: Dplyr, ggplot2, Advanced Dplyr,
@@ -235,6 +235,8 @@ View(tb_cases)
 
 * What are the issues with this data?
 * What `tidyr` methods can be used to fix it?
+
+
 
 
 
