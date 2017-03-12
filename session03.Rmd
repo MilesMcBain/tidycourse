@@ -18,7 +18,9 @@ COURSE_HOME <- here()
 ```
 
 ##Advanced Tidyverse Data Structures
-Overview: In this session we introduce advanced `tidyr`, `purrr`,`broom`,`modelr`. 
+Overview: In this session we introduce advanced `tidyr`, `purrr`, `broom`, `modelr`. 
+
+We introduce advanced programming tools for building and manipulating tidy data followed by the application of those tools in a tidy modelling framework.
 
 
 #Purrr
@@ -65,8 +67,6 @@ deps_df <-
 What are the contents of the `dependent_packs` column?
 
 ##Exercise: Exclude Tidyverse Packages From Count
-On problem is that `dependent_packs` contains packages in the Tidyverse. For example most `tidyverse` packages have a dependency on `tibble`. 
-
 How can we remove all packages in Tidyverse from each list in the `dependent_packs` column?
 
 Exercise: (2.) Calculate the number of depenencies on CRAN for each tidyverse package, exlcuding those in the tidyverse.
@@ -131,7 +131,7 @@ geo_data %>%
 ##Final Remarks on Purrr
 `purrr` is powerful tool for building Tidy Data from raw materials. Unfortunately its documentation is very brief. Examples are the best way to learn. We will see some further examples in this session.
 
-For some a great collection of examples see: [https://jennybc.github.io/purrr-tutorial/index.html](https://jennybc.github.io/purrr-tutorial/index.html)
+For a great collection of examples see: [https://jennybc.github.io/purrr-tutorial/index.html](https://jennybc.github.io/purrr-tutorial/index.html)
     - [Talk by Jenny Bryan](https://www.youtube.com/watch?v=GapSskrtUzU])
 
 

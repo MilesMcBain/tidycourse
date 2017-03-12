@@ -23,6 +23,7 @@ This section is about shaping data. Let's familise ourselves with the data our e
 mtcars
 airquality
 mpg
+flights
 ```
 
 ## Dplyr
